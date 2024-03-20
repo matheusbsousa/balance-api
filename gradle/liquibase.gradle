@@ -1,0 +1,10 @@
+liquibase {
+    activities {
+        main {
+            changeLogFile 'src/main/resources/db/changelogs.yaml'
+            url "jdbc:postgresql://localhost:5434/gympokerdb"
+            username "postgres"
+            password "postgres"
+        }
+    }
+}

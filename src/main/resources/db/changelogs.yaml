@@ -1,0 +1,30 @@
+databaseChangeLog:
+  -  changeSet:
+       id:  1
+       author:  mathueusbsousa
+  - include:
+      file: 'db/scripts/01-init.sql'
+
+  -  changeSet:
+       id:  2
+       author:  mathueusbsousa
+  - include:
+      file: 'db/scripts/02-tables.sql'
+
+  - changeSet:
+      id: 3
+      author: mathueusbsousa
+  - include:
+      file: 'db/scripts/03-added-iscategorized.sql'
+
+  - changeSet:
+      id: 4
+      author: mathueusbsousa
+  - include:
+      file: 'db/scripts/04-added-original-value-date.sql'
+
+  - changeSet:
+      id: 5
+      author: mathueusbsousa
+  - include:
+      file: 'db/scripts/05-set-entry-value-null.sql'
