@@ -50,7 +50,7 @@ class BalanceService(
                             .filter { entry -> extractDate(entry.date!!) == it.month && limit.categories.contains(entry.category) }
                             .sumOf { it.value ?: it.originalValue }
                     )
-                }
+                },
             )
         }
     }

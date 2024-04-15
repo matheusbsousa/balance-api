@@ -43,6 +43,9 @@ dependencies {
 //    liquibaseRuntime("org.yaml:snakeyaml:1.33")
 //    liquibaseRuntime("info.picocli:picocli:4.6.1")
 
+//    Junit
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
+
 
 }
 

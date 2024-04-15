@@ -22,7 +22,7 @@ class CategoryService(
         categoryMap.forEach { category ->
             category.value.forEach { value ->
                 entries.forEach { entry ->
-                    if (!entry.isCategorized && (entry.description ?: entry.originalDescription).contains(value)) {
+                    if (!entry.isCategorized && (entry.description ?: entry.originalDescription).lowercase().contains(value.lowercase())) {
                         entry.category = categories.find { it.id == category.key }!!
                     }
                 }

@@ -48,7 +48,9 @@ class EntryService(
     }
 
     fun deleteEntry(id: Long) {
-        entryRepository.deleteById(id)
+        val entry = entryRepository.findById(id).orElseThrow { RuntimeException("Entry not found") }
+        entry.isIgnored = true
+        entryRepository.save(entry)
     }
 
 

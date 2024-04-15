@@ -1,5 +1,6 @@
 package com.home.balance.api.services
 
+import com.home.balance.api.models.Entities.Category
 import com.home.balance.api.models.Entities.Entry
 import com.home.balance.api.repositories.CategoryRepository
 import com.home.balance.api.repositories.EntryRepository
@@ -38,6 +39,7 @@ class ReaderService(
                         Entry(
                             id = null,
                             originalDate = SimpleDateFormat("dd/MM/yyyy").parse(date),
+                            date = SimpleDateFormat("dd/MM/yyyy").parse(date),
                             originalDescription = extractDescription(description),
                             originalValue = extractDouble(value)
                         )
@@ -74,8 +76,9 @@ class ReaderService(
                 val items = it.split(",", ignoreCase = true)
                     .map { it.trim() }
                     .filter { it.lowercase() != "description" && it.lowercase() != "values" && it != "" }
-                com.home.balance.api.models.Entities.Category(
-                    name = items[0],
+                    .toMutableList()
+                Category(
+                    name = items.removeFirst(),
                     values = items.joinToString(separator = ",")
                 )
             }.toMutableList()

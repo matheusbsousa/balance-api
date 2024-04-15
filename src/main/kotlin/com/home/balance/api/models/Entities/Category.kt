@@ -15,7 +15,7 @@ class Category(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
     var name: String,
-    var values: String
+    var values: String,
 ){
     fun toDto(): CategoryDto {
         return CategoryDto(
