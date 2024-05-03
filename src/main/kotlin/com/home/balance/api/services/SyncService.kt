@@ -7,11 +7,13 @@ import org.springframework.stereotype.Service
 class SyncService(
     @Autowired val readerService: ReaderService,
     @Autowired val categoryService: CategoryService,
+    private val entryService: EntryService,
 ) {
 
     fun syncData() {
         readerService.readDataFromFile()
         categoryService.categorize()
+        entryService.findSplitPayments()
     }
 
 

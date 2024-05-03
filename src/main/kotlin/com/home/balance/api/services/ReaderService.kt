@@ -1,6 +1,5 @@
 package com.home.balance.api.services
 
-import com.home.balance.api.models.Entities.Category
 import com.home.balance.api.models.Entities.Entry
 import com.home.balance.api.repositories.CategoryRepository
 import com.home.balance.api.repositories.EntryRepository
@@ -18,7 +17,6 @@ class ReaderService(
 
     fun readDataFromFile() {
         readEntries()
-        readCategories()
     }
 
     private fun readEntries() {
@@ -62,42 +60,6 @@ class ReaderService(
             }
         }
 
-    }
-
-    private fun readCategories() {
-
-        val reader = getFile("/categories.csv").bufferedReader()
-
-        val categoriesFromDatabase = categoryRepository.findAll()
-
-        val categoryList = reader.lineSequence()
-            .filter { it.trim(',').isNotBlank() }
-            .map {
-                val items = it.split(",", ignoreCase = true)
-                    .map { it.trim() }
-                    .filter { it.lowercase() != "description" && it.lowercase() != "values" && it != "" }
-                    .toMutableList()
-                Category(
-                    name = items.removeFirst(),
-                    values = items.joinToString(separator = ",")
-                )
-            }.toMutableList()
-
-
-        categoryList
-            .filter { category -> categoriesFromDatabase.any { it.name == category.name } }
-            .forEach {category ->
-                categoriesFromDatabase.find { category.name == it.name }!!.values = category.values
-            }
-
-        val existentCategory = categoryList
-            .filter { category -> categoriesFromDatabase.any { it.name == category.name } }
-
-
-        categoryList.removeAll(existentCategory)
-
-        categoryRepository.saveAll(categoryList)
-        reader.close()
     }
 
     private fun extractDescription(description: String): String {

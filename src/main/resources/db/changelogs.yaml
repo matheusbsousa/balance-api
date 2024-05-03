@@ -28,3 +28,9 @@ databaseChangeLog:
       author: mathueusbsousa
   - include:
       file: 'db/scripts/05-set-entry-value-null.sql'
+
+  - changeSet:
+      id: 6
+      author: mathueusbsousa
+  - include:
+      file: 'db/scripts/06-category-color-hex.sql'

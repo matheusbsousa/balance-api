@@ -13,4 +13,7 @@ interface EntryRepository : JpaRepository<Entry, Long> {
             " and (entry.isIgnored = :showIgnored or entry.isIgnored = false) ")
     fun findByYear(@Param("year") year: Int,
                    @Param("showIgnored") showIgnored: Boolean): List<Entry>
+
+    @Query(value = "select e from Entry e where e.category.id = :id")
+    fun findByCategoryId(id: Long): List<Entry>
 }

@@ -53,5 +53,52 @@ class EntryService(
         entryRepository.save(entry)
     }
 
+    fun findSplitPayments() {
+        var entries = entryRepository.findAll()
+
+        val filtered = entries.filter({ it.originalDescription.contains(Regex("\\(\\d+\\/\\d+\\)")) })
+
+        filtered.forEach { entry ->
+            if (entry.originalDescription.contains(Regex("\\((0?1)/\\d+\\)"))) {
+                if (entry.description != null) {
+                    val description = entry.description!!
+                        .replace(entry.originalDescription, "")
+                        .replace(Regex("\\((0?1)/\\d+\\)"), "")
+                        .replace("-", "")
+                        .replace("**", "")
+                        .replace("*-*", "")
+                        .trim()
+                    entry.description = entry.originalDescription + " *-* " + description
+                }
+            }
+        }
+
+        filtered.forEach { entry ->
+            if (entry.originalDescription.contains(Regex("\\((?!0?1\\b)(\\d+)\\/(?!0?1\\b)(\\d+)\\)"))) {
+                val matchResult = Regex("\\((\\d+)/(\\d+)\\)").find(entry.originalDescription)
+                val firstNumber = matchResult?.groups?.get(1)?.value?.padStart(2, '0')
+                val secondNumber = matchResult?.groups?.get(2)?.value?.padStart(2, '0')
+                val previousEntry = entry.originalDescription.replace(
+                    Regex("\\(\\d+\\/\\d+\\)"),
+                    "(${firstNumber?.toInt()!!.minus(1).toString().padStart(2, '0')}/${secondNumber})"
+                )
+
+                filtered.find { it.originalDescription.equals(previousEntry)
+                        && it.originalValue.equals(entry.originalValue)
+                }
+                    ?.let {
+                        entry.description = it.description?.replace(
+                            Regex("\\(\\d+\\/\\d+\\)"),
+                            "(${firstNumber}/$secondNumber)"
+                        )
+
+                        entry.category = it.category
+                    }
+            }
+        }
+
+        entryRepository.saveAll(filtered)
+    }
+
 
 }

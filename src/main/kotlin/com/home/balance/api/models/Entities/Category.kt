@@ -16,11 +16,14 @@ class Category(
     var id: Long? = null,
     var name: String,
     var values: String,
+    var colorHex: String? = null,
 ){
     fun toDto(): CategoryDto {
         return CategoryDto(
             id = id,
-            name = name
+            name = name,
+            values = values.split(","),
+            colorHex = colorHex
         )
     }
 }
