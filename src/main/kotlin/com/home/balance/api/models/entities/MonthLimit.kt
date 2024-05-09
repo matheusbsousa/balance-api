@@ -1,4 +1,4 @@
-package com.home.balance.api.models.Entities
+package com.home.balance.api.models.entities
 
 import com.home.balance.api.models.dtos.MonthLimitDto
 import com.home.balance.api.utils.Constants

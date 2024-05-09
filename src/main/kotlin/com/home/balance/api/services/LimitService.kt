@@ -1,10 +1,13 @@
 package com.home.balance.api.services
 
-import com.home.balance.api.models.Entities.Limit
-import com.home.balance.api.models.Entities.MonthLimit
+import com.home.balance.api.models.dtos.LimitCategoryDto
 import com.home.balance.api.models.dtos.LimitDto
 import com.home.balance.api.models.dtos.MonthLimitDto
+import com.home.balance.api.models.entities.Limit
+import com.home.balance.api.models.entities.LimitCategory
+import com.home.balance.api.models.entities.MonthLimit
 import com.home.balance.api.repositories.CategoryRepository
+import com.home.balance.api.repositories.LimitCategoryRepository
 import com.home.balance.api.repositories.LimitRepository
 import com.home.balance.api.repositories.MonthLimitRepository
 import com.home.balance.api.utils.Constants.MONTHS
@@ -16,7 +19,8 @@ import org.springframework.stereotype.Service
 class LimitService(
     @Autowired val limitRepository: LimitRepository,
     @Autowired val monthLimitRepository: MonthLimitRepository,
-    @Autowired val categoryRepository: CategoryRepository
+    @Autowired val categoryRepository: CategoryRepository,
+    @Autowired val limitCategoriesRepository: LimitCategoryRepository
 ) {
 
     fun getLimits(year: Int): List<MonthLimitDto> {
@@ -59,12 +63,20 @@ class LimitService(
 
         val limit = Limit(
             description = limitDto.description,
-            categories = categories,
             monthLimit = monthLimit,
             percentage = limitDto.percentage
         )
 
         limitRepository.save(limit)
+
+        val limitCategories = categories.map { category ->
+            LimitCategory(
+                category = category,
+                limit = limit
+            )
+        }
+
+        limitCategoriesRepository.saveAll(limitCategories)
 
         return limit.toDto()
     }
@@ -80,8 +92,18 @@ class LimitService(
             throw RuntimeException("Some categories not found")
         }
 
+        val limitCategories = limitCategoriesRepository.findByLimitId(limitId)
+
+        val limitCategoriesToDelete = limitCategories.filter { !categories.contains(it.category) }.toList()
+        limitCategoriesRepository.deleteAll(limitCategoriesToDelete)
+
+        val newLimitCategories =
+            categories.filter { category -> !limitCategories.map { it.category }.contains(category) }
+                .map { category -> LimitCategory(category = category, limit = limit) }
+
+        limitCategoriesRepository.saveAll(newLimitCategories)
+
         limit.description = limitDto.description
-        limit.categories = categories
         limit.percentage = limitDto.percentage
 
         limitRepository.save(limit)
@@ -96,6 +118,7 @@ class LimitService(
         limitRepository.delete(limit)
     }
 
+    //    TODO Fix this
     @Transactional(rollbackOn = [Exception::class])
     fun copyLastMonthLimits(year: Int, month: Int) {
 
@@ -105,24 +128,56 @@ class LimitService(
             monthLimitRepository.findByYearAndMonth(year, month - 1)
         }
 
-        val monthLimit = MonthLimit(
-            month = month,
-            monthDescription = MONTHS[month - 1],
-            year = year
-        )
+        var monthLimit = monthLimitRepository.findByYearAndMonth(year, month)
 
-        monthLimitRepository.save(monthLimit)
+        if (monthLimit == null) {
+            monthLimit = MonthLimit(
+                month = month,
+                monthDescription = MONTHS[month - 1],
+                year = year
+            )
+            monthLimitRepository.save(monthLimit)
+        }
 
         if (lastMonth?.limits != null) {
             val limits = lastMonth.limits!!.map { limit ->
                 Limit(
                     description = limit.description,
-                    categories = categoryRepository.findAllById(limit.categories.map { it.id }),
                     monthLimit = monthLimit,
                     percentage = limit.percentage
                 )
             }
             limitRepository.saveAll(limits)
+
+            lastMonth.limits?.filter { it.limitCategories != null }?.let {
+
+                it.forEach { lastMonthLimit ->
+                    limits.find { limit -> limit.description.equals(lastMonthLimit.description) }?.let { limit ->
+                        limit.limitCategories = lastMonthLimit.limitCategories!!.map { limitCategory ->
+                            LimitCategory(
+                                category = limitCategory.category,
+                                limitValue = limitCategory.limitValue,
+                                limit = limit
+                            )
+                        }
+                    }
+                }
+
+                limitCategoriesRepository.saveAll(limits.flatMap { it.limitCategories!! })
+            }
         }
+    }
+
+    fun updateLimitCategories(limitCategories: List<LimitCategoryDto>, limitId: Long) {
+        val limit = limitRepository.findById(limitId)
+            .orElseThrow { throw RuntimeException("Limit not found") }
+
+        limit.limitCategories!!.forEach { limitCategory ->
+            limitCategories.find { it.id!!.equals(limitCategory.id) }?.let {
+                limitCategory.limitValue = it.limit
+            }
+        }
+
+        limitCategoriesRepository.saveAll(limit.limitCategories!!)
     }
 }

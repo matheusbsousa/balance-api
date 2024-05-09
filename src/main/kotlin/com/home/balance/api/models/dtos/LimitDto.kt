@@ -8,6 +8,6 @@ class LimitDto(
     var month : Int? = null,
     var year: Int? = null,
     var categoryIds: Set<Long>? = null,
-    var categories: List<CategoryDto>? = null
+    var limitCategories: List<LimitCategoryDto>? = null
 ) {
 }

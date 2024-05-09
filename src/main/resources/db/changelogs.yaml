@@ -34,3 +34,15 @@ databaseChangeLog:
       author: mathueusbsousa
   - include:
       file: 'db/scripts/06-category-color-hex.sql'
+
+  - changeSet:
+      id: 7
+      author: mathueusbsousa
+  - include:
+      file: 'db/scripts/07-limit-category-table.sql'
+
+  - changeSet:
+      id: 8
+      author: mathueusbsousa
+  - include:
+      file: 'db/scripts/08-limit-category-column-names.sql'

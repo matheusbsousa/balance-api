@@ -1,5 +1,6 @@
 package com.home.balance.api.controllers
 
+import com.home.balance.api.models.dtos.LimitCategoryDto
 import com.home.balance.api.models.dtos.LimitDto
 import com.home.balance.api.services.LimitService
 import org.springframework.beans.factory.annotation.Autowired
@@ -48,6 +49,15 @@ class LimitController(@Autowired val limitService: LimitService) {
         @RequestParam month: Int
     ): ResponseEntity<Unit> {
         limitService.copyLastMonthLimits(year, month)
+        return ResponseEntity.ok().build()
+    }
+
+    @PutMapping("/{limitId}/categories")
+    fun updateLimitCategories(
+        @RequestBody limitCategories: List<LimitCategoryDto>,
+        @PathVariable("limitId") limitId: Long
+    ): ResponseEntity<Void> {
+        limitService.updateLimitCategories(limitCategories, limitId)
         return ResponseEntity.ok().build()
     }
 }

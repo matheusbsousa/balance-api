@@ -1,6 +1,6 @@
 package com.home.balance.api.services
 
-import com.home.balance.api.models.Entities.Entry
+import com.home.balance.api.models.entities.Entry
 import com.home.balance.api.repositories.CategoryRepository
 import com.home.balance.api.repositories.EntryRepository
 import org.assertj.core.api.Assertions.assertThat
@@ -27,12 +27,12 @@ class EntryServiceTest {
             getEntry("Test (1/2)", "Test (1/2) - compra 01", "01/01/2021", 100.0),
             getEntry("Test (2/2)", null, "01/02/2021", 101.0),
 
-        )
+            )
 
         val expected = listOf(
             getEntry("Test (1/2)", "Test (1/2) *-* compra 01", "01/01/2021", 100.0),
             getEntry("Test (2/2)", "Test (2/2) *-* compra 01", "01/02/2021", 100.0),
-            )
+        )
 
 //        var entries = mutableListOf(
 //            getEntry("Test (1/2)", "Test (1/2) - compra 01", "01/01/2021"),

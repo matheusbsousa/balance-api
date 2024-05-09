@@ -32,13 +32,14 @@ class BalanceService(
                     BalanceDto(
                         description = limit.description,
                         percentage = limit.percentage,
-                        categories = limit.categories.map { category ->
+                        categories = limit.limitCategories!!.map { limitCategory ->
                             CategoryBalanceDto(
-                                description = category.name,
+                                description = limitCategory.category.name,
+                                limit = limitCategory.limitValue ?: 0.0,
                                 value = entries
                                     .filter { entry ->
                                         extractDate(entry.date ?: entry.originalDate) == it.month
-                                                && entry.category!!.id == category.id
+                                                && entry.category!!.id == limitCategory.category.id
                                     }.sumOf { it.value ?: it.originalValue }
                             )
                         },
@@ -47,7 +48,9 @@ class BalanceService(
                             .times(limit.percentage)
                             .div(100),
                         total = entries
-                            .filter { entry -> extractDate(entry.date!!) == it.month && limit.categories.contains(entry.category) }
+                            .filter { entry -> extractDate(entry.date!!) == it.month
+                                    && limit.limitCategories!!.map { it.category }.contains(entry.category)
+                            }
                             .sumOf { it.value ?: it.originalValue }
                     )
                 },

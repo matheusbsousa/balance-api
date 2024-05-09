@@ -1,6 +1,6 @@
 package com.home.balance.api.services
 
-import com.home.balance.api.models.Entities.Category
+import com.home.balance.api.models.entities.Category
 import com.home.balance.api.models.dtos.CategoryDto
 import com.home.balance.api.repositories.CategoryRepository
 import com.home.balance.api.repositories.EntryRepository

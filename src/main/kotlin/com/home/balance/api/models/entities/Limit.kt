@@ -1,4 +1,4 @@
-package com.home.balance.api.models.Entities
+package com.home.balance.api.models.entities
 
 import com.home.balance.api.models.dtos.LimitDto
 import com.home.balance.api.utils.Constants
@@ -6,10 +6,8 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.JoinTable
-import jakarta.persistence.ManyToMany
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 
 @Entity
@@ -25,12 +23,8 @@ class Limit(
     @ManyToOne
     var monthLimit: MonthLimit,
 
-    @ManyToMany
-    @JoinTable(name = "CATEGORY_LIMIT",
-        schema = Constants.SCHEMA,
-        joinColumns = [JoinColumn(name = "LIMIT_ID")],
-        inverseJoinColumns = [JoinColumn(name = "CATEGORY_ID")])
-    var categories: List<Category>
+    @OneToMany(mappedBy = "limit")
+    var limitCategories: List<LimitCategory>? = null
 ) {
     fun toDto(): LimitDto {
         return LimitDto(
@@ -38,7 +32,7 @@ class Limit(
             description = description,
             percentage = percentage,
             monthLimitId = monthLimit.id,
-            categories = categories.map { it.toDto() }
-        )
+            limitCategories = limitCategories!!.map {it.toDto()}
+            )
     }
 }

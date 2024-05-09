@@ -1,6 +1,6 @@
 package com.home.balance.api.services
 
-import com.home.balance.api.models.Entities.Entry
+import com.home.balance.api.models.entities.Entry
 import com.home.balance.api.repositories.CategoryRepository
 import com.home.balance.api.repositories.EntryRepository
 import org.springframework.beans.factory.annotation.Autowired
