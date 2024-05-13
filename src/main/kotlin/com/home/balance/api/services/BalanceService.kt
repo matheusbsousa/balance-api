@@ -47,6 +47,7 @@ class BalanceService(
                             .sumOf { it.value ?: it.originalValue }
                             .times(limit.percentage)
                             .div(100),
+                        limitTotal =  limit.limitCategories!!.map{it.limitValue}.sumOf { it ?: 0.0 },
                         total = entries
                             .filter { entry -> extractDate(entry.date!!) == it.month
                                     && limit.limitCategories!!.map { it.category }.contains(entry.category)

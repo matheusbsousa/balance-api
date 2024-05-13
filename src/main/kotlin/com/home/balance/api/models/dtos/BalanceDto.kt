@@ -5,6 +5,7 @@ class BalanceDto(
     var percentage: Double,
     var categories: List<CategoryBalanceDto>,
     var limitValue: Double,
+    var limitTotal: Double,
     var total: Double
 ) {
 

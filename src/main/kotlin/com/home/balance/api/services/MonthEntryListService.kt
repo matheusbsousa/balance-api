@@ -33,6 +33,7 @@ class MonthEntryListService(
                         .map { (vKey, vValue) ->
                             CategorizedEntriesDto(
                                 category = vKey,
+                                colorHex = vValue.first().category!!.colorHex!!,
                                 total = vValue.sumOf { it.value },
                                 entries = vValue
                             )
