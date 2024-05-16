@@ -6,8 +6,8 @@ spring:
     show-sql: true
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5436/balancedb
-    username: postgres
+    url: jdbc:postgresql://localhost:5432/balancedb
+    username: balance
     password: postgres
   sql:
     init:
