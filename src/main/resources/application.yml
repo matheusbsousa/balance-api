@@ -8,7 +8,7 @@ spring:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/balancedb
     username: balance
-    password: postgres
+    password: balance
   sql:
     init:
       mode: never

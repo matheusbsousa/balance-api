@@ -3,10 +3,10 @@ package com.home.balance.api.services
 import com.home.balance.api.models.entities.Entry
 import com.home.balance.api.repositories.CategoryRepository
 import com.home.balance.api.repositories.EntryRepository
+import com.home.balance.api.utils.EntryUtil
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.io.File
-import java.io.InputStream
 import java.text.SimpleDateFormat
 
 
@@ -38,8 +38,8 @@ class ReaderService(
                             id = null,
                             originalDate = SimpleDateFormat("dd/MM/yyyy").parse(date),
                             date = SimpleDateFormat("dd/MM/yyyy").parse(date),
-                            originalDescription = extractDescription(description),
-                            originalValue = extractDouble(value)
+                            originalDescription = EntryUtil().extractDescription(description),
+                            originalValue = EntryUtil().extractDouble(value)
                         )
                     }
                     .toMutableList()
@@ -60,30 +60,5 @@ class ReaderService(
             }
         }
 
-    }
-
-    private fun extractDescription(description: String): String {
-        return description.trim()
-            .replace("_", " ")
-            .lowercase()
-            .replaceFirstChar(Char::titlecase)
-    }
-
-    private fun getFile(file: String): InputStream {
-        return this::class.java.getResourceAsStream(file) ?: throw IllegalArgumentException("File $file not found")
-
-    }
-
-    private fun extractDouble(string: String): Double {
-        if (string.isNotEmpty()) {
-            return string
-                .replace("\"", "")
-                .replace("R$", "")
-                .replace("(", "")
-                .replace(")", "")
-                .replace(",", "").toDouble()
-        }
-
-        return 0.0
     }
 }

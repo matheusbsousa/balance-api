@@ -1,7 +1,7 @@
 package com.home.balance.api.services
 
-import com.home.balance.api.models.entities.Category
 import com.home.balance.api.models.dtos.CategoryDto
+import com.home.balance.api.models.entities.Category
 import com.home.balance.api.repositories.CategoryRepository
 import com.home.balance.api.repositories.EntryRepository
 import org.springframework.beans.factory.annotation.Autowired
@@ -12,7 +12,6 @@ class CategoryService(
     @Autowired val categoryRepository: CategoryRepository,
     @Autowired val entryRepository: EntryRepository,
 ) {
-
 
     fun categorize() {
         val entries = entryRepository.findAll()

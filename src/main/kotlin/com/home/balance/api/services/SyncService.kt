@@ -11,7 +11,6 @@ class SyncService(
 ) {
 
     fun syncData() {
-        readerService.readDataFromFile()
         categoryService.categorize()
         entryService.findSplitPayments()
     }
