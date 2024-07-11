@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service
 
 @Service
 class SyncService(
-    @Autowired val readerService: ReaderService,
     @Autowired val categoryService: CategoryService,
     private val entryService: EntryService,
 ) {

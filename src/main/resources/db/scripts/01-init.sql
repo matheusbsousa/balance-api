@@ -1,1 +1,1 @@
-create schema balance;
+create schema if not exists balance;

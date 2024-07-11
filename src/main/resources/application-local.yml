@@ -1,19 +1,14 @@
 spring:
-  jpa:
-    defer-datasource-initialization: true
-    hibernate:
-      ddl-auto: create-drop
-    show-sql: true
   datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5435/balancedb
+    url: jdbc:postgresql://localhost:5436/balancedb
     username: postgres
     password: postgres
   sql:
     init:
       mode: always
+      data-locations: classpath:/db/data/data.sql
   liquibase:
-    enabled: false
-    change-log: db/changelogs.yaml
+    drop-first: true
+    default-schema: balance
 server:
-  port: 8081
+  port: 8082

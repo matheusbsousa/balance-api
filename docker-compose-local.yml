@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: balancedb
     volumes:
-      - balancedb-data:/var/lib/postgresql/data
+      - ./src/main/resources/db/scripts/01-init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5436:5432"
 volumes:
