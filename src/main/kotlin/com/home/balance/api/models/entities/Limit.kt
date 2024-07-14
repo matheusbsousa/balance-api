@@ -2,6 +2,7 @@ package com.home.balance.api.models.entities
 
 import com.home.balance.api.models.dtos.LimitDto
 import com.home.balance.api.utils.Constants
+import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -23,7 +24,7 @@ class Limit(
     @ManyToOne
     var monthLimit: MonthLimit,
 
-    @OneToMany(mappedBy = "limit")
+    @OneToMany(mappedBy = "limit", cascade = [CascadeType.ALL])
     var limitCategories: List<LimitCategory>? = null
 ) {
     fun toDto(): LimitDto {
