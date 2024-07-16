@@ -1,0 +1,39 @@
+  version: '3'
+  services:
+    balance_db:
+      image: postgres
+      restart: always
+      environment:
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: balancedb
+      volumes:
+        - balance_balancedb-dev-data:/var/lib/postgresql/data
+      ports:
+        - "5431:5432"
+      networks:
+        - balance_net
+
+    balance_api:
+      build: .
+      ports:
+        - "8081:8081"
+      depends_on:
+        - balance_db
+      networks:
+        - balance_net
+
+    balance_app:
+      build: ../balance-app
+      ports:
+        - "80:80"
+      networks:
+        - balance_net
+
+  volumes:
+    balance_balancedb-dev-data:
+      external: true
+
+
+  networks:
+    balance_net:
+      driver: bridge
