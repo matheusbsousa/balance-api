@@ -4,17 +4,19 @@ import com.home.balance.api.models.dtos.CategoryDto
 import com.home.balance.api.models.entities.Category
 import com.home.balance.api.repositories.CategoryRepository
 import com.home.balance.api.repositories.EntryRepository
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 @Service
 class CategoryService(
-    @Autowired val categoryRepository: CategoryRepository,
-    @Autowired val entryRepository: EntryRepository,
+    private val categoryRepository: CategoryRepository,
+    private val entryRepository: EntryRepository,
+    private val parametersService: ParametersService
+
 ) {
 
     fun categorize() {
         val entries = entryRepository.findAll()
+        val unknownCategoryName = parametersService.getUnknownCategoryName()
         val categories = categoryRepository.findAll()
         val categoryMap = categories.associate { it.id to it.values.split(",") }
 
@@ -22,7 +24,7 @@ class CategoryService(
         categoryMap.forEach { category ->
             category.value.forEach { value ->
                 entries.forEach { entry ->
-                    if (!entry.isCategorized && (entry.description ?: entry.originalDescription).lowercase()
+                    if (!entry.isCategorized && entry.description.lowercase()
                             .contains(value.lowercase())
                     ) {
                         entry.category = categories.find { it.id == category.key }!!
@@ -31,7 +33,7 @@ class CategoryService(
             }
         }
 
-        entries.filter { it.category == null }.forEach { it.category = categories.find { it.name == "Desconhecido" }!! }
+        entries.forEach { it.category = categories.find { it.name == unknownCategoryName }!! }
 
         entryRepository.saveAll(entries)
     }
@@ -80,7 +82,8 @@ class CategoryService(
             throw Exception("Category not found")
         }
 
-        val unknownCategory = categoryRepository.findCategoryByName("Desconhecido")!!
+        val unknownCategoryName = parametersService.getUnknownCategoryName()
+        val unknownCategory = categoryRepository.findCategoryByName(unknownCategoryName)!!
 
         val entries = entryRepository.findByCategoryId(id)
 
@@ -90,5 +93,10 @@ class CategoryService(
 
         entryRepository.saveAll(entries)
         categoryRepository.deleteById(id)
+    }
+
+    fun getUnknownCategory(): Category {
+        val unknownCategoryName = parametersService.getUnknownCategoryName()
+        return categoryRepository.findCategoryByName(unknownCategoryName)!!
     }
 }

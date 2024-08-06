@@ -13,7 +13,7 @@ import jakarta.persistence.Table
 
 @Entity
 @Table(name = "LIMIT", schema = Constants.SCHEMA)
-class Limit(
+class  Limit(
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

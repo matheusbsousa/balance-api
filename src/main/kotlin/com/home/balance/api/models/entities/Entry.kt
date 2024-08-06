@@ -1,6 +1,7 @@
 package com.home.balance.api.models.entities
 
 import com.home.balance.api.models.dtos.EntryDto
+import com.home.balance.api.models.enums.EntryType
 import com.home.balance.api.utils.Constants
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -17,23 +18,26 @@ class Entry(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
+    var description: String,
+    var date: Date,
+    var value: Double,
     var originalDescription: String,
-    var description: String? = null,
     var originalDate: Date,
-    var date: Date? = null,
     var originalValue: Double,
-    var value: Double? = null,
     var isIgnored: Boolean = false,
     var isCategorized: Boolean = false,
+    var month: Int,
+    var type: EntryType,
 
     @ManyToOne
-    var category: Category? = null
+    var category: Category
 ) {
     fun toEntryDto() = EntryDto(
         id = id,
-        date = date ?: originalDate,
-        value = value ?: originalValue,
-        description = description ?: originalDescription,
-        category = category!!.toDto()
+        date = date,
+        value = value,
+        description = description,
+        category = category.toDto(),
+        type = type
     )
 }

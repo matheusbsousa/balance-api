@@ -1,72 +1,89 @@
 package com.home.balance.api.services
 
 
-import com.home.balance.api.models.dtos.BalanceDto
+import com.home.balance.api.models.dtos.BalanceItemDto
 import com.home.balance.api.models.dtos.CategoryBalanceDto
 import com.home.balance.api.models.dtos.MonthBalanceDto
+import com.home.balance.api.models.dtos.TotalBalanceDto
+import com.home.balance.api.models.entities.Category
+import com.home.balance.api.models.entities.Entry
+import com.home.balance.api.models.entities.Limit
+import com.home.balance.api.models.enums.EntryType
 import com.home.balance.api.repositories.EntryRepository
 import com.home.balance.api.repositories.MonthLimitRepository
-import com.home.balance.api.utils.Constants.SALARIO_CATEGORY
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import java.time.ZoneId
-import java.util.*
 
 @Service
 class BalanceService(
     @Autowired val entryRepository: EntryRepository,
-    @Autowired val monthLimitRepository: MonthLimitRepository
+    @Autowired val monthLimitRepository: MonthLimitRepository,
 ) {
 
-
-    fun getMonthBalance(year: Int): List<MonthBalanceDto> {
+    fun getMonthBalancesByYear(year: Int): List<MonthBalanceDto?> {
 
         val entries = entryRepository.findByYear(year, false)
-        val monthLimit = monthLimitRepository.findByYear(year)
 
+        val monthEntries = entries.groupBy { it.month }
 
-        return monthLimit.map {
-            MonthBalanceDto(
-                month = it.month,
-                balances = it.limits!!.map { limit ->
-                    BalanceDto(
-                        description = limit.description,
-                        percentage = limit.percentage,
-                        categories = limit.limitCategories!!.map { limitCategory ->
-                            CategoryBalanceDto(
-                                description = limitCategory.category.name,
-                                limit = limitCategory.limitValue ?: 0.0,
-                                value = entries
-                                    .filter { entry ->
-                                        extractDate(entry.date ?: entry.originalDate) == it.month
-                                                && entry.category!!.id == limitCategory.category.id
-                                    }.sumOf { it.value ?: it.originalValue }
-                            )
-                        },
-                        limitValue = entries.filter { entry -> extractDate(entry.date!!) == it.month && entry.category!!.name == SALARIO_CATEGORY }
-                            .sumOf { it.value ?: it.originalValue }
-                            .times(limit.percentage)
-                            .div(100),
-                        limitTotal =  limit.limitCategories!!.map{it.limitValue}.sumOf { it ?: 0.0 },
-                        total = entries
-                            .filter { entry -> extractDate(entry.date!!) == it.month
-                                    && limit.limitCategories!!.map { it.category }.contains(entry.category)
-                            }
-                            .sumOf { it.value ?: it.originalValue }
-                    )
-                },
+        val monthBalances = monthEntries.map { (month, entries) ->
+            createMonthBalance(year, month, entries)
+        }
+
+        return monthBalances.sortedBy { it?.month }
+    }
+
+    private fun createMonthBalance(year: Int, month: Int, entries: List<Entry>): MonthBalanceDto? {
+
+        return monthLimitRepository.findByYearAndMonth(year, month)?.let {
+            return MonthBalanceDto(
+                month = month,
+                balanceItems = createBalanceItems(entries, it.limits)
+                    .sortedBy { it.title }
             )
         }
     }
 
-    fun extractDate(date: Date): Int {
+    private fun createBalanceItems(entries: List<Entry>, limits: List<Limit>?): List<BalanceItemDto> {
 
-        val entryDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+        val entryByCategory = entries.groupBy { it.category }
+        val incomeTotalValue = entries.filter { it.type == EntryType.INCOME }.map { it.value }.sumOf { it }
 
-        if (entryDate.dayOfMonth < 5) {
-            return entryDate.monthValue - 1
+        val balanceItems = mutableListOf<BalanceItemDto>()
+
+        limits?.forEach { limit ->
+            val limitCategories = limit.limitCategories?.map { it.category } ?: emptyList()
+
+            val totalLimitEstimation = limit.limitCategories?.map { it.limitValue }?.sumOf { it }!!
+            val totalLimitReal = entries.filter { limitCategories.contains(it.category) }.map { it.value }.sumOf { it }
+
+            balanceItems.add(
+                BalanceItemDto(
+                    title = limit.description,
+                    percentage = limit.percentage,
+                    percentageValue = incomeTotalValue.times(limit.percentage).div(100),
+                    balance = totalLimitEstimation - totalLimitReal,
+                    categoryBalances = createCategoryBalances(entryByCategory, limit),
+                    total = TotalBalanceDto(
+                        real = totalLimitReal,
+                        estimation = totalLimitEstimation
+                    )
+                )
+            )
         }
-        return entryDate.monthValue
+        return balanceItems
     }
 
+    private fun createCategoryBalances(
+        entryByCategory: Map<Category, List<Entry>>,
+        limit: Limit
+    ): List<CategoryBalanceDto> {
+        return limit.limitCategories?.map { limitCategory ->
+            CategoryBalanceDto(
+                description = limitCategory.category.name,
+                estimation = limitCategory.limitValue,
+                real = entryByCategory[limitCategory.category]?.map { it.value }?.sumOf { it } ?: 0.0
+            )
+        }?.sortedBy { it.description } ?: emptyList()
+    }
 }

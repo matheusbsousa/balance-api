@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController
 class BalanceController(@Autowired val balanceService: BalanceService) {
 
     @GetMapping
-    fun getBalance(@RequestParam("year") year: Int): ResponseEntity<List<MonthBalanceDto>> {
-        val result = balanceService.getMonthBalance(year)
+    fun getYearBalance(@RequestParam("year") year: Int): ResponseEntity<List<MonthBalanceDto?>> {
+        val result = balanceService.getMonthBalancesByYear(year)
         return ResponseEntity.ok(result)
     }
 }

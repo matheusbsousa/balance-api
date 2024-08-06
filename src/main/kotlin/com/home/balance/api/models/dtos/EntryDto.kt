@@ -1,5 +1,6 @@
 package com.home.balance.api.models.dtos
 
+import com.home.balance.api.models.enums.EntryType
 import java.util.*
 
 class EntryDto(
@@ -9,6 +10,7 @@ class EntryDto(
     var category: CategoryDto? = null,
     var categoryId: Long? = null,
     var description: String,
-    var isIgnored: Boolean = false
+    var isIgnored: Boolean = false,
+    var type: EntryType
 ) {
 }

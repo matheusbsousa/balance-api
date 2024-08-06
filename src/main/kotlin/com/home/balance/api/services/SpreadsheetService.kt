@@ -2,26 +2,38 @@ package com.home.balance.api.services
 
 import com.home.balance.api.models.dtos.EntryDto
 import com.home.balance.api.models.entities.Entry
+import com.home.balance.api.models.enums.EntryType
 import com.home.balance.api.repositories.EntryRepository
+import com.home.balance.api.repositories.ParametersRepository
+import com.home.balance.api.utils.DateUtil.Companion.getMonth
 import com.home.balance.api.utils.EntryUtil
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 @Service
 class SpreadsheetService(
-    @Autowired val entryRepository: EntryRepository,
+    private val entryRepository: EntryRepository,
     private val categoryService: CategoryService,
+    private val parametersService: ParametersService
 ) {
 
     fun saveEntries(entryDtoList: List<EntryDto>) {
 
+        val firstDayOfTheMonth = parametersService.getFirstDayOfTheMonth()
+        val unknownCategory = categoryService.getUnknownCategory()
+
         val entriesFromDatabase = entryRepository.findAll()
         val entryList = entryDtoList.map {
             Entry(
+                description = EntryUtil().extractDescription(it.description),
+                value = it.value,
+                date = it.date,
+                originalDescription = EntryUtil().extractDescription(it.description),
                 originalValue = it.value,
                 originalDate = it.date,
-                date = it.date,
-                originalDescription = EntryUtil().extractDescription(it.description)
+                month = getMonth(firstDayOfTheMonth, it.date),
+                category = unknownCategory,
+                type = EntryType.EXPENSE
             )
         }.toMutableList()
 

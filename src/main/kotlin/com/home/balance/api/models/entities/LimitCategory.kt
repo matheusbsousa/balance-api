@@ -23,7 +23,7 @@ class LimitCategory(
     @ManyToOne
     var category: Category,
 
-    var limitValue: Double? = 0.0,
+    var limitValue: Double = 0.0,
 
     ) {
     fun toDto(): LimitCategoryDto {
@@ -31,7 +31,7 @@ class LimitCategory(
             id = id,
             description = category.name,
             categoryId = category.id!!,
-            limit = limitValue ?: 0.0
+            limit = limitValue
         )
     }
 }
